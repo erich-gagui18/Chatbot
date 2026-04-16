@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SecureChat — Crypto Demo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div class="sidebar">
+
+    <div class="logo-row">
+      <div class="lock-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+          <rect x="3" y="7" width="10" height="8" rx="2" fill="#534AB7"/>
+          <path d="M5 7V5a3 3 0 016 0v2" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <circle cx="8" cy="11" r="1.5" fill="white"/>
+        </svg>
+      </div>
+      <div>
+        <div class="title">SecureChat</div>
+        <div class="sub">Crypto Demo · IAS102</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Encryption Mode</div>
+
+    <!-- Symmetric -->
+    <button class="mode-btn sym active" id="btn-sym" onclick="setMode('sym')">
+      <div class="icon" style="background:#D6D4F6">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="7" width="12" height="8" rx="2" fill="#3C3489"/>
+          <path d="M5 7V5.5a3 3 0 016 0V7" stroke="#3C3489" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="txt">
+        <div class="name">Symmetric</div>
+        <div class="desc">Caesar cipher</div>
+      </div>
+    </button>
+
+    <!-- Asymmetric -->
+    <button class="mode-btn asym" id="btn-asym" onclick="setMode('asym')">
+      <div class="icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="5" cy="8" r="3.5" stroke="#aaa" stroke-width="1.3"/>
+          <circle cx="11" cy="8" r="3.5" stroke="#aaa" stroke-width="1.3"/>
+          <path d="M7.5 8h1" stroke="#aaa" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="txt">
+        <div class="name">Asymmetric</div>
+        <div class="desc">Base64 demo</div>
+      </div>
+    </button>
+
+    <!-- Sym panel -->
+    <div class="key-card" id="sym-panel">
+      <label>Shift key (1–25)</label>
+      <input type="number" id="shift-key" value="3" min="1" max="25"/>
+      <div class="key-hint">Each letter shifts by this number</div>
+    </div>
+
+    <!-- Asym panel -->
+    <div class="key-card" id="asym-panel" style="display:none">
+      <label>Key pair (demo)</label>
+      <div class="key-pair">
+        <div class="key-row">
+          <div class="klabel">Public key — encrypt</div>
+          <div class="kval">PUB:XJ8mK2#nR4tZ</div>
+        </div>
+        <div class="key-row">
+          <div class="klabel">Private key — decrypt</div>
+          <div class="kval">PRV:Yz3nR9!qW7pL</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-pill sym" id="info-pill">
+      One shared key encrypts and decrypts. Like a lock and key both parties share.
+    </div>
+
+    <button class="clear-btn" onclick="clearMsgs()">Clear conversation</button>
+
+  </div><!-- /sidebar -->
+
+  <!-- ══ CHAT AREA ══ -->
+  <div class="chat-area">
+
+    <div class="chat-header">
+      <div class="header-left">
+        <div class="status-dot sym" id="status-dot"></div>
+        <span class="header-title">Encrypted channel</span>
+      </div>
+      <div class="mode-badge sym" id="mode-badge">Symmetric · Caesar</div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">
+          <svg width="24" height="24" viewBox="0 0 22 22" fill="none">
+            <rect x="2" y="9" width="18" height="11" rx="2.5" stroke="#ccc" stroke-width="1.5" fill="none"/>
+            <path d="M7 9V7a4 4 0 018 0v2" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <circle cx="11" cy="14.5" r="1.5" fill="#ccc"/>
+          </svg>
+        </div>
+        <div style="font-weight:600;color:#bbb;font-size:14px">Send a message to see encryption in action</div>
+        <div style="font-size:12px;color:#d0d0d8">Use the quick-send chips or type your own</div>
+      </div>
+    </div>
+
+    <div class="chips-row">
+      <span class="chips-label">Quick send:</span>
+      <div class="chip" onclick="quickSend('Hello World')">Hello World</div>
+      <div class="chip" onclick="quickSend('My password is 1234')">My password is 1234</div>
+      <div class="chip" onclick="quickSend('Meet me at 5pm')">Meet me at 5pm</div>
+      <div class="chip" onclick="quickSend('Top secret message')">Top secret</div>
+    </div>
+
+    <div class="input-bar">
+      <textarea
+        id="msg-input"
+        placeholder="Type a message and encrypt it..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+      ></textarea>
+      <button class="send-btn sym-active" id="send-btn" onclick="sendMessage()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="7" width="10" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+          <path d="M9 10V6a2.5 2.5 0 015 0v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Encrypt &amp; send
+      </button>
+    </div>
+
+  </div><!-- /chat-area -->
+
+</div><!-- /app -->
+
+<script src="script.js"></script>
+</body>
+</html>
