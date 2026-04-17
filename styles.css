@@ -15,10 +15,18 @@ body {
 /* ── App shell ── */
 .app {
   display: grid;
-  grid-template-columns: 310px 1fr;
+  /* Automatically calculates exactly half the remaining space for the sender + the 310px sidebar */
+  grid-template-columns: calc(310px + (100% - 334px) / 2) minmax(0, 1fr); 
+  gap: 24px;
   height: 720px;
-  width: 1040px;
-  max-width: 100%;
+  width: 1360px;
+  max-width: 98vw;
+}
+
+/* ── Left Panel (Combined Sidebar & Sender) ── */
+.left-panel {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
   background: #fff;
   border-radius: 22px;
   overflow: hidden;
@@ -31,7 +39,7 @@ body {
 ══════════════════════════════════ */
 .sidebar {
   background: #f7f7fb;
-  border-right: 1px solid #e8e8f2;
+  border-right: 1px solid #e8e8f2; /* Puts the line back between sidebar and sender */
   display: flex;
   flex-direction: column;
   padding: 26px 20px;
@@ -204,6 +212,14 @@ body {
   background: #fff;
 }
 
+/* ── Receiver Area (Isolated) ── */
+.receiver-area {
+  background: #fafafc;
+  border-radius: 22px;
+  border: 1px solid #e2e2ec;
+  box-shadow: 0 10px 50px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+}
+
 /* ── Header ── */
 .chat-header {
   padding: 18px 26px;
@@ -212,6 +228,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: #fff;
+  height: 64px;
 }
 
 .header-left { display: flex; align-items: center; gap: 11px; }
@@ -239,18 +256,22 @@ body {
 
 /* ── Messages scroll area ── */
 .messages {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1 1 0; /* Crucial: Allows the container to shrink and forces scrolling */
+  min-height: 0; /* Crucial: Prevents the flex child from stretching past the parent */
+  overflow-y: auto; /* Enables vertical scrolling */
   padding: 22px 26px;
   display: flex;
   flex-direction: column;
   gap: 18px;
   background: #f8f8fc;
+  scroll-behavior: smooth;
 }
 
-.messages::-webkit-scrollbar { width: 5px; }
+/* Custom vertical scrollbar to make it look clean */
+.messages::-webkit-scrollbar { width: 6px; }
 .messages::-webkit-scrollbar-track { background: transparent; }
-.messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+.messages::-webkit-scrollbar-thumb { background: #d4d4df; border-radius: 4px; }
+.messages::-webkit-scrollbar-thumb:hover { background: #c0c0cc; }
 
 /* ── Empty state ── */
 .empty-state {
@@ -286,6 +307,7 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0,0,0,0.04);
   animation: fadeUp 0.22s ease;
+  flex-shrink: 0; /* 🔴 This prevents the card from compressing! */
 }
 
 @keyframes fadeUp {
@@ -360,18 +382,50 @@ body {
   border: 1px solid #C0E09A;
 }
 
-/* ── Quick chips ── */
+/* ── Quick chips (Fixed Label, Scrollable Chips) ── */
 .chips-row {
+  height: 54px; 
   padding: 10px 26px 8px;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 12px; /* Space between the label and the scrolling chips */
   align-items: center;
   border-top: 1px solid #ebebf2;
   background: #fff;
+  flex-shrink: 0;
 }
 
-.chips-label { font-size: 12px; color: #ccc; font-weight: 500; }
+.chips-label { 
+  font-size: 12px; 
+  color: #ccc; 
+  font-weight: 500; 
+  flex-shrink: 0; /* Prevents the label from getting squished */
+}
+
+/* This wrapper holds the chips and allows scrolling */
+.chips-wrapper {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap; 
+  align-items: center;
+  overflow-x: auto; /* Enables horizontal scrolling */
+  scroll-behavior: smooth;
+  flex: 1; /* Takes up the remaining horizontal space */
+  
+  /* 1. Hide scrollbar for Firefox and IE/Edge */
+  scrollbar-width: none; 
+  -ms-overflow-style: none;  
+}
+
+/* 2. Hide scrollbar for Chrome, Safari, and newer Edge */
+.chips-wrapper::-webkit-scrollbar { 
+  display: none; 
+}
+
+/* Styling the horizontal scrollbar for the wrapper */
+.chips-wrapper::-webkit-scrollbar { height: 6px; }
+.chips-wrapper::-webkit-scrollbar-track { background: #f8f8fc; border-radius: 4px; }
+.chips-wrapper::-webkit-scrollbar-thumb { background: #d4d4df; border-radius: 4px; }
+.chips-wrapper::-webkit-scrollbar-thumb:hover { background: #c0c0cc; }
 
 .chip {
   font-size: 12px;
@@ -394,12 +448,14 @@ body {
 
 /* ── Input bar ── */
 .input-bar {
+  height: 74px; /* Lock height */
   padding: 14px 26px;
   border-top: 1px solid #ebebf2;
   display: flex;
   gap: 10px;
   align-items: center;
   background: #fff;
+  flex-shrink: 0;
 }
 
 .input-bar textarea {
@@ -460,5 +516,67 @@ body {
 .send-btn.asym-active:hover {
   background: #0A5A45;
   box-shadow: 0 6px 20px rgba(15,110,86,0.40);
+  transform: translateY(-1px);
+}
+
+/* ── Receiver Decryption Bottom Bar ── */
+.receiver-input-container {
+  height: 128px; /* Exactly matches 54px (chips) + 74px (input bar) */
+  background: #fff;
+  border-top: 1px solid #ebebf2;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 26px;
+  gap: 10px;
+}
+
+.receiver-input-label {
+  font-size: 12px;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.receiver-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.receiver-key-input {
+  flex: 1;
+  height: 46px;
+  padding: 0 16px;
+  border: 1.5px solid #e4e4ee;
+  border-radius: 13px;
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  background: #f8f8fc;
+  transition: all 0.15s;
+}
+
+.receiver-key-input:focus {
+  border-color: #1DAE80;
+  background: #fff;
+}
+
+.decrypt-btn {
+  height: 46px;
+  background: #1DAE80;
+  color: white;
+  border: none;
+  padding: 0 24px;
+  border-radius: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+
+.decrypt-btn:hover {
+  background: #158a65;
+  box-shadow: 0 4px 14px rgba(29,174,128,0.25);
   transform: translateY(-1px);
 }
